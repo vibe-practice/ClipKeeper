@@ -31,7 +31,7 @@ if errorlevel 1 goto :fail
 echo.
 echo ==============================================
 echo  완료! 바탕화면의 ClipKeeper를 더블클릭하세요.
-echo  어디서든 Alt+V 를 누르면 기록 창이 열려요.
+echo  어디서든 Ctrl+F2 를 누르면 기록 창이 열려요.
 echo ==============================================
 pause
 exit /b 0

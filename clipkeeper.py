@@ -2,10 +2,10 @@
 ClipKeeper - 윈도우용 클립보드 기록 프로그램
 
 복사한 텍스트, 이미지, 파일을 자동으로 기록합니다.
-- Alt+V : 어디서든 기록 창을 오버레이로 열고 닫기
+- Ctrl+F2 : 어디서든 기록 창을 오버레이로 열고 닫기
   창에서 검색 → Enter(또는 더블클릭)하면 원래 쓰던 창에 바로 붙여넣기
 - 숨기기: 항목 선택 후 Ctrl+H(또는 '숨기기' 버튼) → 평소 목록에서 사라짐
-  Alt+Shift+V(창 안에서는 Ctrl+Shift+H)를 누르면 숨긴 항목만 보임
+  Ctrl+Shift+F2(창 안에서는 Ctrl+Shift+H)를 누르면 숨긴 항목만 보임
 - 종류/날짜 필터, 실시간 검색, 선택 삭제, 필터 결과 전체 삭제
 - 창을 닫아도 작업표시줄 오른쪽 아래(트레이)에서 계속 기록
 - 윈도우 시작 시 자동 실행 옵션
@@ -52,7 +52,7 @@ except Exception:
 
 
 APP_NAME = "ClipKeeper"
-APP_VERSION = "1.2.1"
+APP_VERSION = "1.3.0"
 
 # ── 자동 업데이트 ──
 # GitHub 저장소 "아이디/저장소이름". 비워두면 자동 업데이트를 하지 않음.
@@ -70,10 +70,11 @@ KIND_FROM_LABEL = {"전체": None, "텍스트": "text", "이미지": "image", "�
 
 # ── 단축키 설정 (바꾸고 싶으면 여기만 수정) ──
 MOD_ALT, MOD_CONTROL, MOD_SHIFT, MOD_WIN, MOD_NOREPEAT = 0x1, 0x2, 0x4, 0x8, 0x4000
+VK_F2 = 0x71
 # id: (조합키, 키, 이벤트 이름, 표시 이름)
 HOTKEYS = {
-    1: (MOD_ALT, ord("V"), "hotkey", "Alt+V"),                         # 기록 창 열기/닫기
-    2: (MOD_ALT | MOD_SHIFT, ord("V"), "hotkey_hidden", "Alt+Shift+V"),  # 숨긴 항목 열기/닫기
+    1: (MOD_CONTROL, VK_F2, "hotkey", "Ctrl+F2"),                          # 기록 창 열기/닫기
+    2: (MOD_CONTROL | MOD_SHIFT, VK_F2, "hotkey_hidden", "Ctrl+Shift+F2"),  # 숨긴 항목 열기/닫기
 }
 HOTKEY_LABEL = HOTKEYS[1][3]
 HIDDEN_HOTKEY_LABEL = HOTKEYS[2][3]
@@ -697,7 +698,7 @@ class App:
             font=(FONT[0], 10, "bold"),
         ).pack(side="left", padx=(0, 12))
         tk.Button(
-            inner, text="← 일반 목록으로 (Alt+V)", command=lambda: self.set_hidden_mode(False),
+            inner, text=f"← 일반 목록으로 ({HOTKEY_LABEL})", command=lambda: self.set_hidden_mode(False),
             bg="white", fg="#4f46e5", activebackground="#e0e7ff", relief="flat",
             font=(FONT[0], 9, "bold"), padx=10, cursor="hand2",
         ).pack(side="left")
