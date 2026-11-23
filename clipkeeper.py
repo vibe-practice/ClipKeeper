@@ -52,7 +52,7 @@ except Exception:
 
 
 APP_NAME = "ClipKeeper"
-APP_VERSION = "1.2.0"
+APP_VERSION = "1.2.1"
 
 # ── 자동 업데이트 ──
 # GitHub 저장소 "아이디/저장소이름". 비워두면 자동 업데이트를 하지 않음.
@@ -689,10 +689,18 @@ class App:
 
     # ── 레이아웃 ──
     def _build_toolbar(self):
-        self.mode_bar = tk.Label(
-            self.root, text=f"🔒 숨긴 항목을 보는 중이에요  ·  {HIDDEN_HOTKEY_LABEL} 또는 Esc로 닫기",
-            bg="#4f46e5", fg="white", font=(FONT[0], 10, "bold"), pady=5,
-        )
+        self.mode_bar = tk.Frame(self.root, bg="#4f46e5")
+        inner = tk.Frame(self.mode_bar, bg="#4f46e5")
+        inner.pack(pady=4)
+        tk.Label(
+            inner, text="🔒 숨긴 항목을 보는 중이에요", bg="#4f46e5", fg="white",
+            font=(FONT[0], 10, "bold"),
+        ).pack(side="left", padx=(0, 12))
+        tk.Button(
+            inner, text="← 일반 목록으로 (Alt+V)", command=lambda: self.set_hidden_mode(False),
+            bg="white", fg="#4f46e5", activebackground="#e0e7ff", relief="flat",
+            font=(FONT[0], 9, "bold"), padx=10, cursor="hand2",
+        ).pack(side="left")
 
         bar = ttk.Frame(self.root, padding=(10, 8))
         bar.pack(fill="x")
