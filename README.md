@@ -27,13 +27,7 @@
 ### 새 버전 내보내는 법
 
 1. `clipkeeper.py`의 `APP_VERSION`을 올려요 (예: `1.2.0` → `1.3.0`)
-2. 커밋하고 같은 이름의 태그를 올려요
-
-   ```
-   git commit -am "v1.3.0"
-   git tag v1.3.0
-   git push && git push --tags
-   ```
-
-3. GitHub Actions가 윈도우에서 exe를 만들어 Releases에 올려요 (5분 정도)
+2. 커밋해서 `main`에 올려요
+3. GitHub Actions가 새 버전인 걸 알아보고, 윈도우에서 exe를 만들어 Releases에 `v1.3.0`으로 올려요 (5분 정도)
+   버전 숫자를 안 올리고 올린 커밋은 건너뛰어요
 4. 각자 PC의 ClipKeeper가 알아서 업데이트해요

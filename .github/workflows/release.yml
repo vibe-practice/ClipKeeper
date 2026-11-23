@@ -1,10 +1,12 @@
-# v로 시작하는 태그(예: v1.2.0)를 올리면 윈도우에서 exe를 만들어 GitHub Releases에 올립니다.
+# main에 올라온 clipkeeper.py의 APP_VERSION이 새 버전이면
+# 윈도우에서 exe를 만들어 GitHub Releases에 v버전 이름으로 올립니다.
 # 사용자 PC의 ClipKeeper가 이 릴리스를 보고 자동으로 업데이트해요.
 name: Release
 
 on:
   push:
-    tags: ["v*"]
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -19,24 +21,36 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install build tools
-        run: python -m pip install pillow pystray pyinstaller
-
-      - name: Check version matches tag
+      - name: Read version
+        id: ver
         shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           $v = (python clipkeeper.py --version).Trim()
-          if ("v$v" -ne "${{ github.ref_name }}") {
-            throw "clipkeeper.py의 APP_VERSION(v$v)과 태그(${{ github.ref_name }})가 달라요"
+          "version=$v" >> $env:GITHUB_OUTPUT
+          gh release view "v$v" --repo "${{ github.repository }}" *> $null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "v$v 릴리스가 이미 있어서 건너뜀"
+            "skip=true" >> $env:GITHUB_OUTPUT
+          } else {
+            "skip=false" >> $env:GITHUB_OUTPUT
           }
+          exit 0
 
       - name: Build exe
+        if: steps.ver.outputs.skip == 'false'
         run: |
+          python -m pip install pillow pystray pyinstaller
           python clipkeeper.py --make-icon
           python -m PyInstaller --noconfirm --onefile --windowed --name ClipKeeper --icon clipkeeper.ico --hidden-import pystray._win32 clipkeeper.py
 
       - name: Publish release
+        if: steps.ver.outputs.skip == 'false'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ steps.ver.outputs.version }}
+          name: ClipKeeper v${{ steps.ver.outputs.version }}
+          target_commitish: ${{ github.sha }}
           files: dist/ClipKeeper.exe
           generate_release_notes: true
