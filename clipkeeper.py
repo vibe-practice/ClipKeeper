@@ -52,7 +52,7 @@ except Exception:
 
 
 APP_NAME = "ClipKeeper"
-APP_VERSION = "1.3.0"
+APP_VERSION = "1.3.1"
 
 # ── 자동 업데이트 ──
 # GitHub 저장소 "아이디/저장소이름". 비워두면 자동 업데이트를 하지 않음.
@@ -453,7 +453,20 @@ Start-Process -FilePath {q(target)} -ArgumentList {", ".join(q(a) for a in args)
         ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-WindowStyle", "Hidden",
          "-EncodedCommand", encoded],
         creationflags=0x08000000,  # CREATE_NO_WINDOW
+        env=clean_child_env(),
     )
+
+
+def clean_child_env():
+    """PyInstaller exe가 남긴 환경변수를 지운다.
+    그대로 물려주면 새로 켠 exe가 이미 지워진 예전 임시 폴더(_MEI...)를 찾다가
+    'Failed to load Python DLL' 오류가 난다."""
+    env = {
+        k: v for k, v in os.environ.items()
+        if not (k.upper().startswith(("_PYI", "_MEI")) or k.upper() in ("TCL_LIBRARY", "TK_LIBRARY"))
+    }
+    env["PYINSTALLER_RESET_ENVIRONMENT"] = "1"
+    return env
 
 
 # ──────────────────────────────────────────────
@@ -789,9 +802,13 @@ class App:
             bar, text="윈도우 시작 시 자동 실행", variable=self.auto_var, command=self.apply_autostart
         ).pack(side="left", padx=(12, 0))
         ttk.Button(bar, text="종료", command=self.quit).pack(side="right", padx=(8, 0))
-        self.update_btn = ttk.Button(bar, text="업데이트", command=lambda: self.apply_update(start_hidden=False))
+
+        # 상태 줄 (버튼 줄이 꽉 차도 잘리지 않게 따로 한 줄)
+        status = ttk.Frame(self.root, padding=(12, 0, 10, 8))
+        status.pack(fill="x", before=bar)
         self.status_var = tk.StringVar()
-        ttk.Label(bar, textvariable=self.status_var).pack(side="right")
+        ttk.Label(status, textvariable=self.status_var, foreground="#555").pack(side="left")
+        self.update_btn = ttk.Button(status, text="업데이트", command=lambda: self.apply_update(start_hidden=False))
 
     # ── 트레이 아이콘 ──
     def _start_tray(self):
